@@ -13,6 +13,7 @@ import os
 import collections
 
 import chardet
+import goslate
 
 import json
 
@@ -265,16 +266,21 @@ def getUnicodeTranslatedString(startea, endea):
 	return (encoding, thestr.decode(encoding))
 
 def doTranslate(original_string, api_key):
-		query_param = urllib.urlencode({'q': original_string.encode('utf8'), 'target': 'en', 'key': api_key})
-		url = 'https://www.googleapis.com/language/translate/v2?' + query_param
-		u = urllib.urlopen(url)
-		d = u.read()
-		u.close()
+		if api_key is None:
+			gs = goslate.Goslate()
+			translated_string = gs.translate(original_string, 'en')
+		else:
+			query_param = urllib.urlencode({'q': original_string.encode('utf8'), 'target': 'en', 'key': api_key})
+			url = 'https://www.googleapis.com/language/translate/v2?' + query_param
+			u = urllib.urlopen(url)
+			d = u.read()
+			u.close()
 
-		json_decoder = json.JSONDecoder(encoding='utf-8')
-		translation = json_decoder.decode(d)
-		# take the first translation
-		translated_string = translation['data']['translations'][0]['translatedText']
+			json_decoder = json.JSONDecoder(encoding='utf-8')
+			translation = json_decoder.decode(d)
+			# take the first translation
+			translated_string = translation['data']['translations'][0]['translatedText']
+
 		return translated_string
 
 """
